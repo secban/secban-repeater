@@ -14,8 +14,8 @@ if ! getent group secban >/dev/null 2>&1; then
     groupadd --system secban
 fi
 
-if ! id -u secban-repeater >/dev/null 2>&1; then
-    useradd --no-create-home --system --shell /sbin/nologin --gid secban secban-repeater
+if ! id -u secban >/dev/null 2>&1; then
+    useradd --no-create-home --system --shell /sbin/nologin --gid secban secban
 fi
 
 cp "./secban-repeater" "/usr/sbin/"
@@ -27,7 +27,7 @@ if [ ! -f /etc/secban/repeater.yaml ]; then
 fi
 
 mkdir -p /var/run/secban
-chown secban-repeater:secban /var/run/secban
+chown secban:secban /var/run/secban
 chmod 0770 /var/run/secban
 
 # Systemd

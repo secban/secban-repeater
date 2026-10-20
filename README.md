@@ -40,7 +40,7 @@ sudo ./install.sh
 ```
 
 The script performs the following steps:
-1. Creates `secban` system group and `secban-repeater` system user.
+1. Creates `secban` system group and `secban` system user.
 2. Installs daemon `/usr/sbin/secban-repeater`.
 3. Creates runtime directory `/var/run/secban`.
 4. Copies default configuration to `/etc/secban/repeater.yaml` (if not already present).

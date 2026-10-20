@@ -4,7 +4,7 @@ description="SecBan Repeater Service"
 supervisor="supervise-daemon"
 
 command="/usr/sbin/secban-repeater"
-command_user="secban-repeater:secban"
+command_user="secban:secban"
 
 respawn_delay=5
 respawn_max=0
@@ -20,5 +20,5 @@ start_pre() {
         return 1
     fi
 
-    checkpath -d -m 0770 -o secban-repeater:secban /var/run/secban
+    checkpath -d -m 0770 -o secban:secban /var/run/secban
 }
