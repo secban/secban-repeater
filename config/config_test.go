@@ -21,6 +21,9 @@ timeout: 3s
 agents:
   - http://10.0.0.1:8080
   - unix:///var/run/secban/agent.sock
+rules_map:
+  long_ban: default
+  ssh: remote_ssh
 `
 
 	writeErr := os.WriteFile(filepath.Join(tmpDir, "repeater.yaml"), []byte(configContent), 0o600)
@@ -47,6 +50,14 @@ agents:
 
 	if len(cfg.Agents) != 2 {
 		t.Errorf("expected 2 agents, got %d", len(cfg.Agents))
+	}
+
+	if cfg.RulesMap["long_ban"] != "default" {
+		t.Errorf("expected long_ban to map to default, got %s", cfg.RulesMap["long_ban"])
+	}
+
+	if cfg.RulesMap["ssh"] != "remote_ssh" {
+		t.Errorf("expected ssh to map to remote_ssh, got %s", cfg.RulesMap["ssh"])
 	}
 }
 

@@ -69,6 +69,7 @@ Main configuration file is located at `/etc/secban/repeater.yaml`.
 | `socket_path` | string | UNIX domain socket path to listen on. Default: `/var/run/secban/repeater.sock`. |
 | `timeout` | string | HTTP request timeout duration per target agent (e.g. `5s`, `10s`). Default: `5s`. |
 | `agents` | list of strings | List of target SecBan agent endpoints to repeat bans to (HTTP/HTTPS URLs). |
+| `rules_map` | map of string to string | Optional map from local rule name to remote rule name. |
 | `log_level` | string | Logging level (`debug`, `info`, `warn`, `error`). Default: `info`. |
 
 ## Examples
@@ -92,6 +93,10 @@ timeout: 5s
 agents:
   - http://10.0.0.2:1024
   - http://10.0.0.3:1024
+
+# Optional mapping from local rule name to remote rule name
+rules_map:
+  long_ban: default
 ```
 
 ### 2. SecBan Agent Integration

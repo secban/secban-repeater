@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"path"
 	"strings"
@@ -25,13 +26,15 @@ var (
 )
 
 type ParsedConfig struct {
-	LogLevel   string   `yaml:"log_level"`
-	SocketPath string   `yaml:"socket_path"`
-	Timeout    string   `yaml:"timeout"`
-	Agents     []string `yaml:"agents"`
+	RulesMap   map[string]string `yaml:"rules_map"`
+	LogLevel   string            `yaml:"log_level"`
+	SocketPath string            `yaml:"socket_path"`
+	Timeout    string            `yaml:"timeout"`
+	Agents     []string          `yaml:"agents"`
 }
 
 type Config struct {
+	RulesMap   map[string]string
 	SocketPath string
 	Agents     []string
 	Timeout    time.Duration
@@ -69,9 +72,13 @@ func LoadConfig(configDir string) (*Config, error) {
 		return nil, ErrNoAgents
 	}
 
+	rulesMap := make(map[string]string)
+	maps.Copy(rulesMap, parsed.RulesMap)
+
 	return &Config{
 		Agents:     parsed.Agents,
 		LogLevel:   logLevel,
+		RulesMap:   rulesMap,
 		SocketPath: socketPath,
 		Timeout:    timeout,
 	}, nil

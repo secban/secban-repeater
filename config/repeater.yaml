@@ -13,3 +13,7 @@ timeout: 5s
 # Supports HTTP/HTTPS (e.g. http://10.0.0.2:8080)
 agents:
   - http://192.168.0.19:8080
+
+# Optional rule mapping from local rule to remote rule name
+# rules_map:
+#   long_ban: default

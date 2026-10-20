@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"net/url"
 	"os"
@@ -15,12 +16,16 @@ import (
 	"gitlab.com/secban/secban-agent/ipc"
 )
 
-const maxResponseBodyRead = 1024
+const (
+	maxResponseBodyRead = 1024
+	repeaterTag         = "[repeater]"
+)
 
 var ErrAgentResponse = errors.New("agent error response")
 
 type Client struct {
 	client   *http.Client
+	rulesMap map[string]string
 	agentURL string
 	hostname string
 }
@@ -38,21 +43,45 @@ func getHostname() string {
 	return hostname
 }
 
-func NewClient(agentURL string, timeout time.Duration) *Client {
+func isRepeated(msg ipc.Message) bool {
+	for _, entry := range msg.Offender.Entries {
+		if strings.Contains(strings.ToLower(entry.Message), repeaterTag) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func NewClient(agentURL string, timeout time.Duration, rulesMap map[string]string) *Client {
 	cleanURL := strings.TrimRight(agentURL, "/")
 
 	httpClient := &http.Client{
 		Timeout: timeout,
 	}
 
+	copiedRulesMap := make(map[string]string, len(rulesMap))
+	maps.Copy(copiedRulesMap, rulesMap)
+
 	return &Client{
 		agentURL: cleanURL,
 		client:   httpClient,
 		hostname: getHostname(),
+		rulesMap: copiedRulesMap,
 	}
 }
 
 func (c *Client) Ban(ctx context.Context, msg ipc.Message) error {
+	if isRepeated(msg) {
+		log.Debug().
+			Str("agent", c.agentURL).
+			Str("ip", msg.IP).
+			Str("rule", msg.Rule).
+			Msg("skipping repeated ban to prevent loop")
+
+		return nil
+	}
+
 	fullURL := c.buildBanURL(msg)
 
 	log.Debug().
@@ -82,15 +111,25 @@ func (c *Client) Ban(ctx context.Context, msg ipc.Message) error {
 	return nil
 }
 
+func (c *Client) resolveRule(localRule string) string {
+	if mappedRule, exists := c.rulesMap[localRule]; exists && mappedRule != "" {
+		return mappedRule
+	}
+
+	return localRule
+}
+
 func (c *Client) buildBanURL(msg ipc.Message) string {
+	targetRule := c.resolveRule(msg.Rule)
+
 	banPath := fmt.Sprintf(
 		"/ban/%s/%s",
 		url.PathEscape(msg.IP),
-		url.PathEscape(msg.Rule),
+		url.PathEscape(targetRule),
 	)
 	fullURL := c.agentURL + banPath
 
-	messageText := "repeated from " + msg.Rule
+	messageText := "[" + msg.Rule + "]"
 	if len(msg.Offender.Entries) > 0 {
 		lastEntry := msg.Offender.Entries[len(msg.Offender.Entries)-1]
 		if lastEntry.Message != "" {
@@ -98,7 +137,7 @@ func (c *Client) buildBanURL(msg ipc.Message) string {
 		}
 	}
 
-	fullMessage := fmt.Sprintf("repeater %s %s", c.hostname, messageText)
+	fullMessage := fmt.Sprintf("%s %s %s", repeaterTag, c.hostname, messageText)
 
 	urlParams := url.Values{}
 	urlParams.Set("message", fullMessage)
@@ -106,10 +145,10 @@ func (c *Client) buildBanURL(msg ipc.Message) string {
 	return fullURL + "?" + urlParams.Encode()
 }
 
-func New(agentURLs []string, timeout time.Duration) *Repeater {
+func New(agentURLs []string, timeout time.Duration, rulesMap map[string]string) *Repeater {
 	clients := make([]*Client, 0, len(agentURLs))
 	for _, agentURL := range agentURLs {
-		clients = append(clients, NewClient(agentURL, timeout))
+		clients = append(clients, NewClient(agentURL, timeout, rulesMap))
 	}
 
 	return &Repeater{
@@ -118,6 +157,15 @@ func New(agentURLs []string, timeout time.Duration) *Repeater {
 }
 
 func (r *Repeater) Repeat(ctx context.Context, msg ipc.Message) []error {
+	if isRepeated(msg) {
+		log.Debug().
+			Str("ip", msg.IP).
+			Str("rule", msg.Rule).
+			Msg("skipping repeated ban to prevent loop")
+
+		return nil
+	}
+
 	var errs []error
 
 	for _, client := range r.clients {

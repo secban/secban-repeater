@@ -24,7 +24,7 @@ func main() {
 
 	zerolog.SetGlobalLevel(conf.LogLevel)
 
-	rep := repeater.New(conf.Agents, conf.Timeout)
+	rep := repeater.New(conf.Agents, conf.Timeout, conf.RulesMap)
 
 	ctx := context.Background()
 
