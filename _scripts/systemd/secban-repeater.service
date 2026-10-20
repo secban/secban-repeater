@@ -1,0 +1,23 @@
+[Unit]
+Description=SecBan Repeater Service
+After=network.target secban-agent.service
+ConditionPathExists=/usr/sbin/secban-repeater
+
+[Service]
+User=secban-repeater
+Group=secban
+Type=exec
+ExecStart=/usr/sbin/secban-repeater
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/run/secban
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target
+Alias=secban-repeater.service

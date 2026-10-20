@@ -1,0 +1,15 @@
+# SecBan Repeater Configuration
+
+# Log level: debug, info, warn, error
+log_level: info
+
+# UNIX socket path where secban-repeater listens for IPC events from the local agent
+socket_path: /var/run/secban/repeater.sock
+
+# HTTP request timeout per agent call
+timeout: 5s
+
+# List of remote or local secban-agent endpoints to repeat bans to.
+# Supports HTTP/HTTPS (e.g. http://10.0.0.2:8080)
+agents:
+  - http://127.0.0.1:8080

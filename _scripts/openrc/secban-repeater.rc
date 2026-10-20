@@ -1,0 +1,24 @@
+#!/sbin/openrc-run
+
+description="SecBan Repeater Service"
+supervisor="supervise-daemon"
+
+command="/usr/sbin/secban-repeater"
+command_user="secban-repeater:secban"
+
+respawn_delay=5
+respawn_max=0
+
+depend() {
+    need net
+    after secban-agent
+}
+
+start_pre() {
+    if [ ! -x "/usr/sbin/secban-repeater" ]; then
+        eerror "Executable /usr/sbin/secban-repeater does not exist or is not executable"
+        return 1
+    fi
+
+    checkpath -d -m 0770 -o secban-repeater:secban /var/run/secban
+}
