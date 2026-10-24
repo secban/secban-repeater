@@ -70,7 +70,7 @@ func TestRepeaterBanSuccess(t *testing.T) {
 		hostname = "unknown"
 	}
 
-	expectedQuery := url.Values{"message": []string{"[repeater] " + hostname + " repeated auth failure"}}.Encode()
+	expectedQuery := url.Values{"message": []string{"[repeater: " + hostname + "] repeated auth failure"}}.Encode()
 	if lastQuery != expectedQuery {
 		t.Fatalf("expected query %s, got %s", expectedQuery, lastQuery)
 	}
@@ -118,7 +118,7 @@ func TestRepeaterSkipRepeatedBan(t *testing.T) {
 			Count: 1,
 			Entries: []entry.Entry{
 				{
-					Message: "[repeater] remote-host repeated auth failure",
+					Message: "[repeater: remote-host] repeated auth failure",
 				},
 			},
 		},
@@ -157,7 +157,7 @@ func TestClientBanSkipRepeatedBan(t *testing.T) {
 					Message: "some initial error",
 				},
 				{
-					Message: "[REPEATER] host2 auth failure",
+					Message: "[repeater: host2] repeated auth failure",
 				},
 			},
 		},
@@ -169,7 +169,7 @@ func TestClientBanSkipRepeatedBan(t *testing.T) {
 	}
 
 	if atomic.LoadInt32(&receivedCount) != 0 {
-		t.Fatalf("expected 0 calls when message contains [repeater], got %d", receivedCount)
+		t.Fatalf("expected 0 calls when message contains [repeater: host2], got %d", receivedCount)
 	}
 }
 
