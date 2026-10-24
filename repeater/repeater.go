@@ -18,7 +18,7 @@ import (
 
 const (
 	maxResponseBodyRead = 1024
-	repeaterTag         = "[repeater]"
+	repeaterPrefix      = "[repeater:"
 )
 
 var ErrAgentResponse = errors.New("agent error response")
@@ -45,7 +45,7 @@ func getHostname() string {
 
 func isRepeated(msg ipc.Message) bool {
 	for _, entry := range msg.Offender.Entries {
-		if strings.Contains(strings.ToLower(entry.Message), repeaterTag) {
+		if strings.HasPrefix(strings.ToLower(entry.Message), repeaterPrefix) {
 			return true
 		}
 	}
@@ -137,7 +137,7 @@ func (c *Client) buildBanURL(msg ipc.Message) string {
 		}
 	}
 
-	fullMessage := fmt.Sprintf("%s %s %s", repeaterTag, c.hostname, messageText)
+	fullMessage := fmt.Sprintf("%s %s] %s", repeaterPrefix, c.hostname, messageText)
 
 	urlParams := url.Values{}
 	urlParams.Set("message", fullMessage)
