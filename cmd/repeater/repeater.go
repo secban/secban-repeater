@@ -7,11 +7,14 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gitlab.com/secban/secban-agent/ipc"
+	"gitlab.com/secban/secban-agent/version"
 	"gitlab.com/secban/secban-repeater/config"
 	"gitlab.com/secban/secban-repeater/repeater"
 )
 
 func main() {
+	version.CLI()
+
 	var configDir string
 
 	flag.StringVar(&configDir, "config", "/etc/secban", "path to config directory")
