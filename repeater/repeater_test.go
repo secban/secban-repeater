@@ -42,7 +42,7 @@ func TestRepeaterBanSuccess(t *testing.T) {
 		IP:   "198.51.100.5",
 		Rule: "ssh",
 		Offender: offender.Offender{
-			Count: 3,
+			ReportCount: 3,
 			Entries: []entry.Entry{
 				{
 					Message: "repeated auth failure",
@@ -115,7 +115,7 @@ func TestRepeaterSkipRepeatedBan(t *testing.T) {
 		IP:   "198.51.100.5",
 		Rule: "ssh",
 		Offender: offender.Offender{
-			Count: 1,
+			ReportCount: 1,
 			Entries: []entry.Entry{
 				{
 					Message: "[repeater: remote-host] repeated auth failure",
@@ -151,7 +151,7 @@ func TestClientBanSkipRepeatedBan(t *testing.T) {
 		IP:   "198.51.100.5",
 		Rule: "ssh",
 		Offender: offender.Offender{
-			Count: 2,
+			ReportCount: 2,
 			Entries: []entry.Entry{
 				{
 					Message: "some initial error",
