@@ -4,13 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"maps"
-	"os"
 	"path"
 	"strings"
 	"time"
 
 	"github.com/rs/zerolog"
-	"go.yaml.in/yaml/v3"
+	"gitlab.com/secban/secban-agent/configloader"
 )
 
 const (
@@ -26,11 +25,11 @@ var (
 )
 
 type ParsedConfig struct {
-	RulesMap   map[string]string `yaml:"rules_map"`
-	LogLevel   string            `yaml:"log_level"`
-	SocketPath string            `yaml:"socket_path"`
-	Timeout    string            `yaml:"timeout"`
-	Agents     []string          `yaml:"agents"`
+	RulesMap   map[string]string `koanf:"rules_map"`
+	LogLevel   string            `koanf:"log_level"`
+	SocketPath string            `koanf:"socket_path"`
+	Timeout    string            `koanf:"timeout"`
+	Agents     []string          `koanf:"agents"`
 }
 
 type Config struct {
@@ -87,16 +86,9 @@ func LoadConfig(configDir string) (*Config, error) {
 func parseConfig(configDir string) (*ParsedConfig, error) {
 	filePath := path.Join(configDir, fileName)
 
-	file, readErr := os.ReadFile(filePath)
-	if readErr != nil {
-		return nil, fmt.Errorf("failed to read repeater config file: %w", readErr)
-	}
-
-	var parsed ParsedConfig
-
-	yamlErr := yaml.Unmarshal(file, &parsed)
-	if yamlErr != nil {
-		return nil, fmt.Errorf("failed to parse repeater config: %w", yamlErr)
+	parsed, parseErr := configloader.ParseConfig(defaultParsedConfig(), filePath, nil)
+	if parseErr != nil {
+		return nil, parseErr
 	}
 
 	return &parsed, nil

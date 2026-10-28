@@ -9,7 +9,7 @@ socket_path: /var/run/secban/repeater.sock
 # HTTP request timeout per agent call
 timeout: 5s
 
-# List of remote or local secban-agent endpoints to repeat bans to.
+# List of secban-agent endpoints to repeat bans to.
 # Supports HTTP/HTTPS (e.g. http://10.0.0.2:8080)
 agents:
   - http://192.168.0.19:8080
