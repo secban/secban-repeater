@@ -23,14 +23,10 @@ contents:
     expand: true
     file_info:
       mode: 0755
-  - src: "${REPO_DIR}/config/repeater.yaml"
-    dst: "/etc/secban/repeater.yaml"
+  - src: "${BIN_DIR}/etc/secban"
+    dst: "/etc/secban"
     expand: true
-    type: "config|noreplace"
-    file_info:
-      mode: 0640
-      owner: "root"
-      group: "secban"
+    type: "config|noreplace|tree"
   - src: "${REPO_DIR}/_scripts/systemd/secban-repeater.service"
     dst: "/lib/systemd/system/secban-repeater.service"
     expand: true
