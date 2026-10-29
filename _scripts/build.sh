@@ -31,11 +31,17 @@ export GOARCH="$ARCH"
 env CGO_ENABLED=0 GOOS="$GOOS" GOARCH="$ARCH" go build $BUILD_OPTIONS -o "$TMPDIR/$ARCH/secban-repeater" "$LDFLAGS" "$REPO/cmd/repeater/repeater.go"
 
 cp "$REPO/_scripts/install.sh" "$TMPDIR/$ARCH/"
-cp "$REPO/config/repeater.yaml" "$TMPDIR/$ARCH/"
-cp "$REPO/_scripts/systemd/secban-repeater.service" "$TMPDIR/$ARCH/"
-cp "$REPO/_scripts/openrc/secban-repeater.rc" "$TMPDIR/$ARCH/"
-
 chmod +x "$TMPDIR/$ARCH/install.sh"
+
+cp "$REPO/_scripts/systemd/secban-repeater.service" "$TMPDIR/$ARCH/"
+chmod +x "$TMPDIR/$ARCH/secban-repeater.service"
+
+mkdir -p "$TMPDIR/$ARCH/etc/secban"
+cp -ar "$REPO/config/default/" "$TMPDIR/$ARCH/etc/secban"
+find "$TMPDIR/$ARCH/etc/secban" -type f -name "*.yaml" -exec sh -c 'for f; do mv "$f" "$f.default"; done' sh {} +
+find "$TMPDIR/$ARCH/etc/secban" -type d -exec chmod 755 {} \;
+find "$TMPDIR/$ARCH/etc/secban" -type f -exec chmod 644 {} \;
+
 
 if [ "$TEST_INSTALL" = true ]; then
     (cd "$TMPDIR/$ARCH" && ./install.sh)

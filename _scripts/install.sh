@@ -21,10 +21,8 @@ fi
 cp "./secban-repeater" "/usr/sbin/"
 chmod +x "/usr/sbin/secban-repeater"
 
-mkdir -p /etc/secban
-if [ ! -f /etc/secban/repeater.yaml ]; then
-    cp "./repeater.yaml" "/etc/secban/repeater.yaml"
-fi
+# Install the example agent configuration.
+cp -ar "./etc/secban/" "/etc/secban/"
 
 mkdir -p /var/run/secban
 chown secban:secban /var/run/secban

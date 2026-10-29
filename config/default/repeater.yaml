@@ -11,9 +11,15 @@ timeout: 5s
 
 # List of secban-agent endpoints to repeat bans to.
 # Supports HTTP/HTTPS (e.g. http://10.0.0.2:8080)
-agents:
-  - http://192.168.0.19:8080
+agents: []
+# agents:
+#   - http://192.168.0.19:8080
 
-# Optional rule mapping from local rule to remote rule name
+# Optional ban mapping from local ban to remote ban name. Use if the target agent uses a different naming convention for bans.
+rules_map: {}
 # rules_map:
-#   long_ban: default
+#   local_ban_name: remote_ban_name
+
+# Profiler endpoint. Set to an empty value to disable. PPROF information will be at /debug/pprof/.
+profiler: ""
+# profiler: localhost:6063

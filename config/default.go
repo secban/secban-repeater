@@ -1,8 +1,8 @@
 package config
 
-func defaultParsedConfig() ParsedConfig {
+func DefaultParsedConfig() ParsedConfig {
 	return ParsedConfig{
-		Profiler:   "localhost:6063",
+		Profiler:   "",
 		LogLevel:   "info",
 		SocketPath: "/var/run/secban/repeater.sock",
 		Timeout:    "5s",
