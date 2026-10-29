@@ -25,6 +25,7 @@ var (
 )
 
 type ParsedConfig struct {
+	Profiler   string            `koanf:"profiler"`
 	RulesMap   map[string]string `koanf:"rules_map"`
 	LogLevel   string            `koanf:"log_level"`
 	SocketPath string            `koanf:"socket_path"`
@@ -35,6 +36,7 @@ type ParsedConfig struct {
 type Config struct {
 	RulesMap   map[string]string
 	SocketPath string
+	Profiler   string
 	Agents     []string
 	Timeout    time.Duration
 	LogLevel   zerolog.Level
@@ -79,6 +81,7 @@ func LoadConfig(configDir string) (*Config, error) {
 		LogLevel:   logLevel,
 		RulesMap:   rulesMap,
 		SocketPath: socketPath,
+		Profiler:   parsed.Profiler,
 		Timeout:    timeout,
 	}, nil
 }

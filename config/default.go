@@ -2,6 +2,7 @@ package config
 
 func defaultParsedConfig() ParsedConfig {
 	return ParsedConfig{
+		Profiler:   "localhost:6063",
 		LogLevel:   "info",
 		SocketPath: defaultSocket,
 		Timeout:    "5s",
