@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"maps"
 	"path"
-	"strings"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -13,10 +12,7 @@ import (
 )
 
 const (
-	fileName       = "repeater.yaml"
-	defaultTimeout = 5 * time.Second
-	defaultSocket  = "/var/run/secban/repeater.sock"
-	emptyString    = ""
+	fileName = "repeater.yaml"
 )
 
 var (
@@ -42,47 +38,36 @@ type Config struct {
 	LogLevel   zerolog.Level
 }
 
-func LoadConfig(configDir string) (*Config, error) {
+func LoadConfig(configDir string) (Config, error) {
 	parsed, parseErr := parseConfig(configDir)
 	if parseErr != nil {
-		return nil, parseErr
+		return Config{}, parseErr
 	}
 
-	logLevel, logErr := parseLogLevel(parsed.LogLevel)
-	if logErr != nil {
-		return nil, logErr
+	logLevel, logLevelErr := configloader.TransformLogLevel(parsed.LogLevel)
+	if logLevelErr != nil {
+		return Config{}, logLevelErr
 	}
 
-	timeout := defaultTimeout
-
-	if parsed.Timeout != emptyString {
-		parsedTimeout, timeoutErr := time.ParseDuration(parsed.Timeout)
-		if timeoutErr != nil {
-			return nil, fmt.Errorf("invalid timeout value: %w", timeoutErr)
-		}
-
-		timeout = parsedTimeout
-	}
-
-	socketPath := defaultSocket
-	if parsed.SocketPath != emptyString {
-		socketPath = parsed.SocketPath
+	parsedTimeout, timeoutErr := time.ParseDuration(parsed.Timeout)
+	if timeoutErr != nil {
+		return Config{}, fmt.Errorf("invalid timeout value: %w", timeoutErr)
 	}
 
 	if len(parsed.Agents) == 0 {
-		return nil, ErrNoAgents
+		return Config{}, ErrNoAgents
 	}
 
 	rulesMap := make(map[string]string)
 	maps.Copy(rulesMap, parsed.RulesMap)
 
-	return &Config{
+	return Config{
 		Agents:     parsed.Agents,
 		LogLevel:   logLevel,
 		RulesMap:   rulesMap,
-		SocketPath: socketPath,
+		SocketPath: parsed.SocketPath,
 		Profiler:   parsed.Profiler,
-		Timeout:    timeout,
+		Timeout:    parsedTimeout,
 	}, nil
 }
 
@@ -95,19 +80,4 @@ func parseConfig(configDir string) (*ParsedConfig, error) {
 	}
 
 	return &parsed, nil
-}
-
-func parseLogLevel(raw string) (zerolog.Level, error) {
-	switch strings.ToLower(strings.TrimSpace(raw)) {
-	case "debug":
-		return zerolog.DebugLevel, nil
-	case "info", emptyString:
-		return zerolog.InfoLevel, nil
-	case "warn", "warning":
-		return zerolog.WarnLevel, nil
-	case "error":
-		return zerolog.ErrorLevel, nil
-	default:
-		return zerolog.InfoLevel, fmt.Errorf("%w: %s", ErrUnknownLogLevel, raw)
-	}
 }

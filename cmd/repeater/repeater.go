@@ -43,7 +43,7 @@ func main() {
 	}
 }
 
-func loadConf() *config.Config {
+func loadConf() config.Config {
 	var configDir string
 	//nolint:revive,nolintlint // Not a real deep-exit, extracted from main for readability.
 	flag.StringVar(&configDir, "config", "/etc/secban", "path to config directory")
